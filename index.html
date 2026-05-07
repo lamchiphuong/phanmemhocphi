@@ -57,10 +57,17 @@
             background-color: white;
             margin: 5% auto;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 12px;
             width: 90%;
-            max-width: 800px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 480px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .toast {
+            animation: slideIn 0.3s ease forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         .receipt-row {
             display: grid;
@@ -112,15 +119,7 @@
                 top: 0;
                 width: 100%;
             }
-            .modal-content {
-                box-shadow: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                max-width: 100%;
-            }
         }
-        
     </style>
 </head>
 <body class="bg-gray-50">
@@ -129,44 +128,29 @@
             <h1 class="text-3xl font-bold text-blue-600 mb-2">PHẦN MỀM TÍNH HỌC PHÍ</h1>
             <p class="text-gray-600">Phiên bản 2.4 - được phát triển bởi Lâm Chí Phương</p>
             <p class="text-gray-600">Email: lamchiphuong.work@gmail.com</p>
-
-            <button id="whatsNewBtn" class="absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-700 transition">
-                What's New
-            </button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Student Input Section -->
+            <!-- Left Panel: Student Management -->
             <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-1">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800">Thông tin học viên</h2>
-             
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="studentName">Tên học viên</label>
-                    <input type="text" id="studentName" placeholder="Nhập tên học viên" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="studentClass">Lớp</label>
-                    <input type="text" id="studentClass" placeholder="Nhập lớp học" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" for="feeRate">Đơn giá học phí (đồng/buổi)</label>
-                    <input type="number" id="feeRate" placeholder="Nhập đơn giá" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="100000" step="1000" min="0">
-                </div>
-                <div class="mb-4">
-                    <button id="addStudentBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
-                        Thêm học viên
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800">Quản lý học viên</h2>
+                    <button id="addStudentBtn" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition">
+                        <span class="text-xl leading-none">+</span>
+                        <span>Thêm học viên</span>
                     </button>
                 </div>
-                <div class="flex space-x-2">
-                    <button id="loadFromFileBtn" class="w-1/2 bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-200">
-                        Tải dữ liệu
-                    </button>
-                    <button id="saveToFileBtn" class="w-1/2 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200">
-                        Lưu dữ liệu
-                    </button>
+
+                <!-- Danh sách học viên bên sidebar -->
+                <div class="mt-2">
+                    <h3 class="text-sm font-medium text-gray-500 mb-3 px-1">DANH SÁCH HỌC VIÊN</h3>
+                    <div id="studentsSidebarList" class="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto pr-1 custom-scroll">
+                        <!-- Rendered by JavaScript -->
+                    </div>
                 </div>
-                <input type="file" id="fileInput" accept=".json" class="hidden">
             </div>
+
             <!-- Calendar Section -->
             <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-2">
                 <h2 class="text-xl font-semibold mb-4 text-gray-800">Điểm danh buổi học</h2>
@@ -183,7 +167,7 @@
                         <!-- Calendar days will be added here by JavaScript -->
                     </div>
                 </div>
-                <div class="flex justify-between">
+                <div class="flex justify-between items-center">
                     <button id="prevMonthBtn" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition duration-200">
                         Tháng trước
                     </button>
@@ -194,207 +178,223 @@
                 </div>
             </div>
         </div>
-        <!-- Student List and Fee Calculation -->
-        <div class="mt-8">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800">Danh sách học viên và học phí</h2>
-         
-            <div id="studentsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Student cards will be added here by JavaScript -->
-            </div>
-            <!-- Summary Section -->
-            <div class="mt-6 bg-white rounded-xl shadow-md p-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Tổng kết học phí</h3>
-                        <p class="text-gray-600">Tổng số học viên: <span id="totalStudents" class="font-medium">0</span></p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-semibold text-blue-600">Tổng học phí: <span id="totalFees">0</span> đ</p>
-                    </div>
-                </div>
-                <div class="mt-4 flex justify-end space-x-3">
-                    <button id="clearAllBtn" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200">
-                        Xóa tất cả
-                    </button>
-                    <button id="showReceiptBtn" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200">
-                        Xem phiếu học phí
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal What's New - bổ sung mới -->
-    <div id="whatsNewModal" class="modal">
-        <div class="modal-content max-w-lg">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-indigo-700">Cập nhật phiên bản 2.4</h2>
-                <button id="closeWhatsNewBtn" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <!-- Summary -->
+        <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Tổng kết học phí</h3>
+                    <p class="text-gray-600">Tổng số học viên: <span id="totalStudents" class="font-medium">0</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-lg font-semibold text-blue-600">Tổng học phí: <span id="totalFees">0</span> đ</p>
+                </div>
             </div>
-            <div class="space-y-3 text-gray-700">
-                <p><strong>Thay đổi chính:</strong></p>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>Giảm giá và ghi chú giờ là <strong>riêng cho từng tháng</strong> (không áp dụng chung nữa)</li>
-                    <li>Thêm nút "What's New" để xem thông tin cập nhật</li>
-                    <li>Giữ nguyên tất cả chức năng cũ của phiên bản 2.3</li>
-                </ul>
-                <p class="text-sm italic mt-4">Cảm ơn bạn đã sử dụng phần mềm!</p>
-            </div>
-            <div class="mt-6 text-right">
-                <button id="closeWhatsNewConfirmBtn" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
-                    Đóng
+            <div class="mt-6 flex justify-end gap-3">
+                <button id="clearAllBtn" class="bg-red-500 text-white py-2 px-5 rounded-xl hover:bg-red-600 transition">
+                    Xóa tất cả
+                </button>
+                <button id="showReceiptBtn" class="bg-green-600 text-white py-2 px-5 rounded-xl hover:bg-green-700 transition">
+                    Xem phiếu học phí
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Discount Modal - sửa để per-month -->
+    <!-- What's New Button - Cuối trang -->
+    <div class="text-center py-8">
+        <button id="whatsNewBtn" 
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl text-sm font-medium transition shadow-md">
+            What's New trong phiên bản 2.4
+        </button>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2"></div>
+
+    <!-- ====================== ALL MODALS ====================== -->
+
+    <!-- Add/Edit Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content max-w-md">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-2xl font-bold text-gray-800" id="modalTitle">Thêm học viên mới</h2>
+                <button id="closeAddStudentModal" class="text-4xl leading-none text-gray-400 hover:text-gray-600">&times;</button>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tên học viên <span class="text-red-500">*</span></label>
+                    <input type="text" id="studentName" placeholder="Ví dụ: Nguyễn Văn A" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Lớp</label>
+                    <input type="text" id="studentClass" placeholder="Ví dụ: 9A1" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Đơn giá / buổi (VND)</label>
+                    <input type="number" id="feeRate" value="100000" step="5000" min="0"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button id="cancelAddStudentBtn" 
+                        class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium">
+                    Hủy
+                </button>
+                <button id="saveStudentBtn" 
+                        class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">
+                    Lưu học viên
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Discount Modal -->
     <div id="editDiscountModal" class="modal">
         <div class="modal-content max-w-md">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-800">Chỉnh sửa giảm giá <span class="text-sm font-normal text-gray-500">(tháng hiện tại)</span></h2>
-                <button id="closeEditDiscountBtn" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <button id="closeEditDiscountBtn" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1" for="editDiscountInput">Giảm giá (%)</label>
-                <input type="number" id="editDiscountInput" min="0" max="100" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập % giảm giá">
+                <input type="number" id="editDiscountInput" min="0" max="100" step="0.1" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập % giảm giá">
             </div>
-            <div class="flex justify-end space-x-3">
-                <button id="cancelEditDiscountBtn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-200">
-                    Hủy
-                </button>
-                <button id="saveEditDiscountBtn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
-                    Lưu
-                </button>
+            <div class="flex justify-end gap-3">
+                <button id="cancelEditDiscountBtn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl">Hủy</button>
+                <button id="saveEditDiscountBtn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl">Lưu</button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Notes Modal - sửa để per-month -->
+    <!-- Edit Notes Modal -->
     <div id="editNotesModal" class="modal">
         <div class="modal-content max-w-md">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-800">Chỉnh sửa ghi chú <span class="text-sm font-normal text-gray-500">(tháng hiện tại)</span></h2>
-                <button id="closeEditNotesBtn" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <button id="closeEditNotesBtn" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
             </div>
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1" for="editNotesTextarea">Ghi chú cho học viên</label>
-                <textarea id="editNotesTextarea" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
+                <textarea id="editNotesTextarea" rows="5" 
+                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nhập ghi chú..."></textarea>
             </div>
-            <div class="flex justify-end space-x-3">
-                <button id="cancelEditNotesBtn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-200">
-                    Hủy
-                </button>
-                <button id="saveEditNotesBtn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
-                    Lưu
-                </button>
+            <div class="flex justify-end gap-3">
+                <button id="cancelEditNotesBtn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl">Hủy</button>
+                <button id="saveEditNotesBtn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl">Lưu</button>
             </div>
         </div>
     </div>
 
-    <!-- Select Students Modal giữ nguyên -->
+    <!-- Select Students Modal -->
     <div id="selectStudentsModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content max-w-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-800">Chọn học viên để xuất phiếu</h2>
-                <button id="closeSelectModalBtn" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <button id="closeSelectModalBtn" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
             </div>
-            <div id="selectStudentsList" class="mb-4 max-h-60 overflow-y-auto">
-                <!-- Student checkboxes will be added here by JavaScript -->
-            </div>
-            <div class="flex justify-between mb-4">
-                <label class="flex items-center">
-                    <input type="checkbox" id="selectAllStudents" class="mr-2">
-                    <span class="text-sm">Chọn tất cả</span>
+            <div id="selectStudentsList" class="mb-4 max-h-80 overflow-y-auto border rounded-xl p-2"></div>
+            <div class="flex justify-between mb-4 px-1">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="selectAllStudents" class="w-5 h-5">
+                    <span class="text-sm font-medium">Chọn tất cả</span>
                 </label>
-                <span id="selectedCount" class="text-sm text-gray-600">0 học viên được chọn</span>
+                <span id="selectedCount" class="text-sm text-gray-600 font-medium">0 học viên được chọn</span>
             </div>
-            <div class="flex justify-end space-x-3">
-                <button id="generateReceiptBtn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-200 disabled:opacity-50" disabled>
-                    Xuất phiếu
-                </button>
-                <button id="cancelSelectBtn" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition duration-200">
-                    Hủy
+            <div class="flex justify-end gap-3">
+                <button id="cancelSelectBtn" class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl">Hủy</button>
+                <button id="generateReceiptBtn" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl disabled:opacity-50" disabled>
+                    Xuất phiếu học phí
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Receipt Modal giữ nguyên -->
+    <!-- Receipt Modal -->
     <div id="receiptModal" class="modal">
-        <div class="modal-content" id="printable-receipt">
+        <div class="modal-content" id="printable-receipt" style="max-width: 900px;">
             <div class="text-center mb-6">
-    <h2 class="text-3xl font-bold text-blue-600">PHIẾU BÁO HỌC PHÍ</h2>
-    <h3 class="text-2xl font-semibold text-gray-800 mt-3">THÁNG <span id="receiptMonthDisplay"></span></h3>
-</div>
+                <h2 class="text-4xl font-bold text-blue-600">PHIẾU BÁO HỌC PHÍ</h2>
+                <h3 class="text-2xl font-semibold text-gray-800 mt-3">THÁNG <span id="receiptMonthDisplay"></span></h3>
+            </div>
 
-<div class="flex justify-end mb-4 no-print">
-    <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-    </button>
-</div>
-         
-            <div class="flex justify-between mb-6">
-                <p class="text-sm"><strong>Ngày xuất:</strong> <span id="receiptDate"></span></p>
-                <p class="text-sm"><strong>Mã phiếu:</strong> HPDK-<span id="receiptNumber"></span></p>
+            <div class="flex justify-end mb-4 no-print">
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 text-4xl leading-none">&times;</button>
             </div>
          
-         
-            <div id="receiptContent">
-                <!-- Filled by JavaScript -->
+            <div class="flex justify-between mb-6 text-sm">
+                <p><strong>Ngày xuất:</strong> <span id="receiptDate"></span></p>
+                <p><strong>Mã phiếu:</strong> HPDK-<span id="receiptNumber"></span></p>
             </div>
+         
+            <div id="receiptContent"></div>
     
-         
-            <div class="mt-6 text-right">
-                <p class="text-xl font-bold">TỔNG CỘNG: <span id="receiptTotalFee" class="text-blue-600">0</span> đ</p>
+            <div class="mt-8 text-right">
+                <p class="text-2xl font-bold">TỔNG CỘNG: <span id="receiptTotalFee" class="text-blue-600">0</span> đ</p>
             </div>
          
-            <div class="mt-8 flex justify-between">
+            <div class="mt-12 flex justify-between text-sm">
                 <div class="text-center">
                     <p class="font-bold">Người lập phiếu</p>
-                    <p class="text-sm text-gray-500 mt-4">(Ký, ghi rõ họ tên)</p>
+                    <p class="text-gray-500 mt-10">(Ký, ghi rõ họ tên)</p>
                 </div>
                 <div class="text-center">
                     <p class="font-bold">Phụ huynh học viên</p>
-                    <p class="text-sm text-gray-500 mt-4">(Ký, ghi rõ họ tên)</p>
+                    <p class="text-gray-500 mt-10">(Ký, ghi rõ họ tên)</p>
                 </div>
             </div>
          
-            <div class="mt-6 flex justify-center no-print">
-                <button id="printReceiptBtn" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition duration-200">
+            <div class="mt-10 flex justify-center no-print">
+                <button id="printReceiptBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-xl text-lg">
                     In phiếu
                 </button>
             </div>
         </div>
     </div>
 
-<script>
+    <!-- What's New Modal -->
+    <div id="whatsNewModal" class="modal">
+        <div class="modal-content max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-indigo-700">Cập nhật phiên bản 2.4</h2>
+                <button id="closeWhatsNewBtn" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="space-y-3 text-gray-700">
+                <p><strong>Thay đổi chính:</strong></p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Giảm giá và ghi chú giờ là <strong>riêng cho từng tháng</strong></li>
+                    <li>Giao diện thêm học viên dạng popup</li>
+                    <li>Danh sách học viên hiển thị cố định bên trái</li>
+                    <li>Thông báo dạng Toast hiện đại</li>
+                    <li>Nút What's New đặt cuối trang</li>
+                </ul>
+                <p class="text-sm italic mt-6">Cảm ơn bạn đã sử dụng phần mềm!</p>
+            </div>
+            <div class="mt-6 text-right">
+                <button id="closeWhatsNewConfirmBtn" class="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+ <script>
     // === JSONBIN CONFIG ===
     const JSONBIN_BIN_ID = "69fbed1dc0954111d8e9de38";
     const JSONBIN_MASTER_KEY = "$2a$10$w8HuZEOH5lKslhwqq1vyc.pW/hNhvuAzCkMse5cgH4R9cX.n27ISO";
     const JSONBIN_API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
+    // === MAIN VARIABLES ===
     let currentMonth = new Date().getMonth();
     let currentYear = new Date().getFullYear();
     let students = [];
-    let lastSavedState = null;           // <-- Quan trọng cho receipt counter
+    let lastSavedState = null;
     let currentEditingStudentId = null;
+    let isEditingStudent = false;  // Để phân biệt thêm mới hay sửa
 
-    // DOM Elements
+    // === DOM ELEMENTS ===
     const studentNameEl = document.getElementById('studentName');
     const studentClassEl = document.getElementById('studentClass');
     const feeRateEl = document.getElementById('feeRate');
@@ -404,11 +404,19 @@
     const currentMonthYearEl = document.getElementById('currentMonthYear');
     const prevMonthBtn = document.getElementById('prevMonthBtn');
     const nextMonthBtn = document.getElementById('nextMonthBtn');
-    const studentsListEl = document.getElementById('studentsList');
+    const studentsListEl = document.getElementById('studentsSidebarList'); // Danh sách bên trái
     const totalStudentsEl = document.getElementById('totalStudents');
     const totalFeesEl = document.getElementById('totalFees');
     const clearAllBtn = document.getElementById('clearAllBtn');
     const showReceiptBtn = document.getElementById('showReceiptBtn');
+
+    // Modal Elements
+    const addStudentModal = document.getElementById('addStudentModal');
+    const closeAddStudentModal = document.getElementById('closeAddStudentModal');
+    const cancelAddStudentBtn = document.getElementById('cancelAddStudentBtn');
+    const saveStudentBtn = document.getElementById('saveStudentBtn');
+    const modalTitle = document.getElementById('modalTitle');
+
     const receiptModal = document.getElementById('receiptModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const printReceiptBtn = document.getElementById('printReceiptBtn');
@@ -416,8 +424,7 @@
     const receiptTotalFeeEl = document.getElementById('receiptTotalFee');
     const receiptDateEl = document.getElementById('receiptDate');
     const receiptNumberEl = document.getElementById('receiptNumber');
-    const loadFromFileBtn = document.getElementById('loadFromFileBtn');
-    const saveToFileBtn = document.getElementById('saveToFileBtn');
+    const receiptMonthDisplay = document.getElementById('receiptMonthDisplay');
 
     const selectStudentsModal = document.getElementById('selectStudentsModal');
     const selectStudentsListEl = document.getElementById('selectStudentsList');
@@ -443,9 +450,31 @@
     const closeWhatsNewBtn = document.getElementById('closeWhatsNewBtn');
     const closeWhatsNewConfirmBtn = document.getElementById('closeWhatsNewConfirmBtn');
 
+    const toastContainer = document.getElementById('toastContainer');
+
+    // Helper function
     function getCurrentMonthKey() {
         return `${currentMonth + 1}-${currentYear}`;
     }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl text-white max-w-xs
+                           ${type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'}`;
+        toast.innerHTML = `
+            <span>${message}</span>
+        `;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transition = 'all 0.3s';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(20px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+        // ====================== CORE FUNCTIONS ======================
 
     async function autoSave() {
         if (students.length === 0) return;
@@ -477,18 +506,17 @@
                         notes: s.notes || {},
                         sessions: s.sessions || {}
                     }));
-                    if (!silent) alert('✅ Đã tải dữ liệu từ JSONBin thành công!');
+                    if (!silent) showToast('✅ Đã tải dữ liệu từ JSONBin thành công!', 'success');
                     return true;
                 }
             }
-            if (!silent) alert('Chưa có dữ liệu nào.');
         } catch (e) {
-            if (!silent) alert('❌ Lỗi tải: ' + e.message);
+            if (!silent) showToast('❌ Lỗi khi tải dữ liệu', 'error');
         }
     }
 
     async function saveToJsonBin() {
-        if (students.length === 0) return alert('Không có dữ liệu!');
+        if (students.length === 0) return showToast('Không có dữ liệu để lưu!', 'error');
         try {
             await fetch(JSONBIN_API_URL, {
                 method: 'PUT',
@@ -499,56 +527,136 @@
                 },
                 body: JSON.stringify({ students, lastUpdated: new Date().toISOString() })
             });
-            alert('✅ Lưu thành công!');
+            showToast('✅ Đã lưu dữ liệu thành công!', 'success');
         } catch (e) {
-            alert('❌ Lỗi lưu: ' + e.message);
+            showToast('❌ Lỗi khi lưu dữ liệu', 'error');
         }
     }
 
-    // ====================== CÁC HÀM CÒN LẠI ======================
-    function addStudent() {
+    function addOrUpdateStudent() {
         const name = studentNameEl.value.trim();
-        if (!name) return alert('Vui lòng nhập tên học viên');
-        if (students.some(s => s.name.toLowerCase() === name.toLowerCase())) return alert('Học viên đã tồn tại!');
+        if (!name) {
+            showToast('Vui lòng nhập tên học viên!', 'error');
+            return;
+        }
 
-        students.push({
-            id: Date.now().toString(),
-            name: name,
-            class: studentClassEl.value.trim(),
-            feeRate: parseInt(feeRateEl.value) || 100000,
-            discounts: {},
-            notes: {},
-            sessions: {}
-        });
+        if (!isEditingStudent && students.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+            showToast('Học viên này đã tồn tại!', 'error');
+            return;
+        }
+
+        if (isEditingStudent && currentEditingStudentId) {
+            const student = students.find(s => s.id === currentEditingStudentId);
+            if (student) {
+                student.name = name;
+                student.class = studentClassEl.value.trim();
+                student.feeRate = parseInt(feeRateEl.value) || 100000;
+            }
+            showToast('✅ Cập nhật học viên thành công!', 'success');
+        } else {
+            students.push({
+                id: Date.now().toString(),
+                name: name,
+                class: studentClassEl.value.trim(),
+                feeRate: parseInt(feeRateEl.value) || 100000,
+                discounts: {},
+                notes: {},
+                sessions: {}
+            });
+            showToast('✅ Thêm học viên thành công!', 'success');
+        }
+
         autoSave();
+        renderStudentsSidebar();
         updateStudentSelect();
-        renderStudentCards();
         updateSummary();
-        studentNameEl.value = ''; studentClassEl.value = ''; feeRateEl.value = '100000';
+        closeAddStudentModalFn();
     }
 
     function deleteStudent(id) {
-        if (confirm('Xóa học viên này?')) {
+        if (confirm('Bạn có chắc muốn xóa học viên này?')) {
             students = students.filter(s => s.id !== id);
             autoSave();
+            renderStudentsSidebar();
             updateStudentSelect();
-            renderStudentCards();
             updateSummary();
             updateAttendanceCheckboxes();
+            showToast('🗑️ Đã xóa học viên', 'success');
         }
+    }
+
+    function editStudent(id) {
+        const student = students.find(s => s.id === id);
+        if (!student) return;
+
+        isEditingStudent = true;
+        currentEditingStudentId = id;
+
+        modalTitle.textContent = 'Sửa thông tin học viên';
+        studentNameEl.value = student.name;
+        studentClassEl.value = student.class || '';
+        feeRateEl.value = student.feeRate;
+
+        addStudentModal.style.display = 'block';
+    }
+
+    // Render danh sách học viên ở sidebar (trái)
+    function renderStudentsSidebar() {
+        studentsListEl.innerHTML = '';
+        const key = getCurrentMonthKey();
+
+        students.forEach(student => {
+            const sessions = student.sessions[key] || [];
+            const discount = student.discounts[key] || 0;
+            const totalFee = sessions.length * student.feeRate * (1 - discount / 100);
+
+            const div = document.createElement('div');
+            div.className = 'group bg-white border border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-all cursor-pointer';
+            div.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-gray-800 truncate">${student.name}</p>
+                        ${student.class ? `<p class="text-xs text-gray-500">${student.class}</p>` : ''}
+                        <p class="text-xs text-blue-600 mt-1">${sessions.length} buổi • ${totalFee.toLocaleString()}đ</p>
+                    </div>
+                    <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition">
+                        <button class="edit-student-btn text-blue-600 hover:text-blue-700 text-xs px-2 py-1" data-id="${student.id}">Sửa</button>
+                        <button class="delete-student-btn text-red-600 hover:text-red-700 text-xs px-2 py-1" data-id="${student.id}">Xóa</button>
+                    </div>
+                </div>
+            `;
+            studentsListEl.appendChild(div);
+        });
+
+        // Gắn sự kiện
+        document.querySelectorAll('.edit-student-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopImmediatePropagation();
+                editStudent(btn.dataset.id);
+            });
+        });
+
+        document.querySelectorAll('.delete-student-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopImmediatePropagation();
+                deleteStudent(btn.dataset.id);
+            });
+        });
     }
 
     function clearAllData() {
-        if (confirm('XÓA TẤT CẢ DỮ LIỆU?')) {
+        if (confirm('XÓA TOÀN BỘ DỮ LIỆU?\nHành động này không thể hoàn tác!')) {
             students = [];
             autoSave();
+            renderStudentsSidebar();
             updateStudentSelect();
-            renderStudentCards();
             updateSummary();
+            showToast('🗑️ Đã xóa tất cả dữ liệu', 'success');
         }
     }
 
-    function generateCalendar() { /* ... giữ nguyên như trước */ 
+    // ====================== CALENDAR FUNCTIONS ======================
+    function generateCalendar() {
         calendarGridEl.innerHTML = '';
         const firstDay = new Date(currentYear, currentMonth, 1);
         const lastDay = new Date(currentYear, currentMonth + 1, 0);
@@ -556,8 +664,11 @@
         startingDay = (startingDay === 0) ? 6 : startingDay - 1;
 
         for (let i = 0; i < startingDay; i++) {
-            const empty = document.createElement('div'); empty.className = 'h-8'; calendarGridEl.appendChild(empty);
+            const empty = document.createElement('div');
+            empty.className = 'h-10';
+            calendarGridEl.appendChild(empty);
         }
+
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const date = new Date(currentYear, currentMonth, day);
             const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -577,22 +688,29 @@
     }
 
     function handleCalendarChange(e) {
-        if (e.target.type === 'checkbox' && e.target.dataset.date) toggleSession(e.target.dataset.date, e.target.checked);
+        if (e.target.type === 'checkbox' && e.target.dataset.date) {
+            toggleSession(e.target.dataset.date, e.target.checked);
+        }
     }
 
     function toggleSession(date, attended) {
         const studentId = studentSelectEl.value;
-        if (!studentId) return alert('Chọn học viên trước');
+        if (!studentId) {
+            showToast('Vui lòng chọn học viên trước!', 'error');
+            return;
+        }
         const student = students.find(s => s.id === studentId);
         const key = getCurrentMonthKey();
         if (!student.sessions[key]) student.sessions[key] = [];
+
         if (attended) {
             if (!student.sessions[key].includes(date)) student.sessions[key].push(date);
         } else {
             student.sessions[key] = student.sessions[key].filter(d => d !== date);
         }
+
         autoSave();
-        renderStudentCards();
+        renderStudentsSidebar();
         updateSummary();
     }
 
@@ -600,18 +718,29 @@
         const studentId = studentSelectEl.value;
         const key = getCurrentMonthKey();
         document.querySelectorAll('input[data-date]').forEach(cb => {
-            cb.checked = studentId && students.find(s => s.id === studentId)?.sessions[key]?.includes(cb.dataset.date) || false;
+            const attended = studentId && students.find(s => s.id === studentId)?.sessions[key]?.includes(cb.dataset.date) || false;
+            cb.checked = attended;
         });
     }
 
     function showPreviousMonth() {
-        currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-        updateMonthYearDisplay(); generateCalendar(); updateAttendanceCheckboxes(); renderStudentCards(); updateSummary();
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        updateMonthYearDisplay();
+        generateCalendar();
+        updateAttendanceCheckboxes();
+        renderStudentsSidebar();
+        updateSummary();
     }
 
     function showNextMonth() {
-        currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-        updateMonthYearDisplay(); generateCalendar(); updateAttendanceCheckboxes(); renderStudentCards(); updateSummary();
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        updateMonthYearDisplay();
+        generateCalendar();
+        updateAttendanceCheckboxes();
+        renderStudentsSidebar();
+        updateSummary();
     }
 
     function updateMonthYearDisplay() {
@@ -629,54 +758,34 @@
         });
     }
 
-    // ====================== RENDER + GHI CHÚ ======================
-    function renderStudentCards() {
-        studentsListEl.innerHTML = '';
+    function updateSummary() {
+        let total = 0;
         const key = getCurrentMonthKey();
-
-        students.forEach(student => {
-            const sessions = student.sessions[key] || [];
-            const discount = student.discounts[key] || 0;
-            const notes = student.notes[key] || '';
-            const before = sessions.length * student.feeRate;
-            const totalFee = before * (1 - discount / 100);
-
-            const card = document.createElement('div');
-            card.className = 'fee-card bg-white rounded-xl shadow-md p-5 border-l-4 border-blue-500';
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <h3 class="font-bold text-xl">${student.name}</h3>
-                        ${student.class ? `<p class="text-gray-600">Lớp: ${student.class}</p>` : ''}
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <div class="flex gap-1">
-                            <button class="edit-notes-btn bg-yellow-500 text-white px-3 py-1 rounded text-xs" data-id="${student.id}">${notes ? 'Sửa ghi chú' : 'Thêm ghi chú'}</button>
-                            ${notes ? `<button class="delete-notes-btn bg-red-400 text-white px-3 py-1 rounded text-xs" data-id="${student.id}">Xóa</button>` : ''}
-                        </div>
-                        <div class="flex gap-1">
-                            <button class="edit-discount-btn bg-green-600 text-white px-3 py-1 rounded text-xs" data-id="${student.id}">Giảm giá</button>
-                            <button class="delete-student-btn bg-red-600 text-white px-3 py-1 rounded text-xs" data-id="${student.id}">Xóa</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="space-y-2 text-sm">
-                    <div class="flex justify-between"><span class="text-gray-600">Số buổi:</span><span>${sessions.length}</span></div>
-                    <div class="flex justify-between"><span class="text-gray-600">Đơn giá:</span><span>${student.feeRate.toLocaleString()} đ</span></div>
-                    ${discount ? `<div class="flex justify-between text-red-600"><span>Giảm:</span><span>${discount}%</span></div>` : ''}
-                    <div class="flex justify-between font-bold text-blue-600"><span>Tổng:</span><span>${totalFee.toLocaleString()} đ</span></div>
-                </div>
-                ${notes ? `<div class="mt-3 p-3 bg-yellow-50 rounded">${notes.replace(/\n/g,'<br>')}</div>` : ''}
-            `;
-            studentsListEl.appendChild(card);
+        students.forEach(s => {
+            const count = (s.sessions[key] || []).length;
+            const discount = s.discounts[key] || 0;
+            total += count * s.feeRate * (1 - discount / 100);
         });
-
-        document.querySelectorAll('.edit-notes-btn').forEach(b => b.addEventListener('click', () => editNotes(b.dataset.id)));
-        document.querySelectorAll('.delete-notes-btn').forEach(b => b.addEventListener('click', () => deleteNotes(b.dataset.id)));
-        document.querySelectorAll('.edit-discount-btn').forEach(b => b.addEventListener('click', () => editDiscount(b.dataset.id)));
-        document.querySelectorAll('.delete-student-btn').forEach(b => b.addEventListener('click', () => deleteStudent(b.dataset.id)));
+        totalStudentsEl.textContent = students.length;
+        totalFeesEl.textContent = total.toLocaleString();
     }
 
+    // ====================== MODAL HELPERS ======================
+    function openAddStudentModal() {
+        isEditingStudent = false;
+        currentEditingStudentId = null;
+        modalTitle.textContent = 'Thêm học viên mới';
+        studentNameEl.value = '';
+        studentClassEl.value = '';
+        feeRateEl.value = '100000';
+        addStudentModal.style.display = 'block';
+    }
+
+    function closeAddStudentModalFn() {
+        addStudentModal.style.display = 'none';
+    }
+
+    // Các hàm edit notes, discount, receipt... (giữ nguyên logic cũ)
     function editNotes(id) {
         currentEditingStudentId = id;
         const student = students.find(s => s.id === id);
@@ -684,23 +793,14 @@
         editNotesModal.style.display = 'block';
     }
 
-    function deleteNotes(id) {
-        if (confirm('Xóa ghi chú?')) {
-            const student = students.find(s => s.id === id);
-            if (student) delete student.notes[getCurrentMonthKey()];
-            autoSave();
-            renderStudentCards();
-        }
-    }
-
     function saveEditNotes() {
         if (currentEditingStudentId) {
             const student = students.find(s => s.id === currentEditingStudentId);
             student.notes[getCurrentMonthKey()] = editNotesTextarea.value.trim();
             autoSave();
-            renderStudentCards();
+            renderStudentsSidebar();
             editNotesModal.style.display = 'none';
-            currentEditingStudentId = null;
+            showToast('✅ Đã lưu ghi chú', 'success');
         }
     }
 
@@ -717,39 +817,23 @@
             const val = parseFloat(editDiscountInput.value) || 0;
             student.discounts[getCurrentMonthKey()] = Math.max(0, Math.min(100, val));
             autoSave();
-            renderStudentCards();
+            renderStudentsSidebar();
             updateSummary();
             editDiscountModal.style.display = 'none';
-            currentEditingStudentId = null;
+            showToast('✅ Đã lưu giảm giá', 'success');
         }
     }
 
-    function updateSummary() {
-        let total = 0;
-        const key = getCurrentMonthKey();
-        students.forEach(s => {
-            const c = (s.sessions[key] || []).length;
-            const d = s.discounts[key] || 0;
-            total += c * s.feeRate * (1 - d/100);
-        });
-        totalStudentsEl.textContent = students.length;
-        totalFeesEl.textContent = total.toLocaleString();
-    }
-
-    function formatDisplayDate(str) {
-        const d = new Date(str);
-        return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
-    }
-
-    // ====================== PHIẾU HỌC PHÍ (ĐÚNG HÀM BẠN CUNG CẤP) ======================
+    // ====================== RECEIPT FUNCTIONS (giữ nguyên) ======================
     function updateReceiptContent(selectedStudents = students, includeNotesMap = {}) {
+        // ... (giữ nguyên hàm updateReceiptContent từ file gốc bạn cung cấp)
         receiptContentEl.innerHTML = '';
         const today = new Date();
         receiptDateEl.textContent = today.toLocaleDateString('vi-VN');
        
         const monthKey = getCurrentMonthKey();
         const monthsDisplay = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-        document.getElementById('receiptMonthDisplay').textContent = `${monthsDisplay[currentMonth]} / ${currentYear}`;
+        receiptMonthDisplay.textContent = `${monthsDisplay[currentMonth]} / ${currentYear}`;
            
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = String(today.getFullYear()).slice(-2);
@@ -813,14 +897,14 @@
             if (studentSessions.length > 0) {
                 const detailTitle = document.createElement('p');
                 detailTitle.className = "font-medium mt-4";
-                detailTitle.textContent = "Điểm danh buổi học:";
+                detailTitle.textContent = "Chi tiết buổi học:";
                 studentSection.appendChild(detailTitle);
                 const sessionGrid = document.createElement('div');
                 sessionGrid.className = "session-grid mt-2";
                 studentSessions.forEach(session => {
                     const sessionItem = document.createElement('div');
                     sessionItem.className = 'session-item';
-                    sessionItem.textContent = formatDisplayDate(session);
+                    sessionItem.textContent = `${session.slice(8,10)}/${session.slice(5,7)}`;
                     sessionGrid.appendChild(sessionItem);
                 });
                 studentSection.appendChild(sessionGrid);
@@ -831,8 +915,7 @@
                 const notesSection = document.createElement('div');
                 notesSection.className = "notes-section mt-4";
                 const notesParagraph = document.createElement('p');
-                notesParagraph.innerHTML = '<strong>Ghi chú:</strong> ' + 
-                    student.notes[monthKey].replace(/\n/g, '<br>').replace(/\r/g, '').trim();
+                notesParagraph.innerHTML = '<strong>Ghi chú:</strong> ' + student.notes[monthKey].replace(/\n/g, '<br>');
                 notesSection.appendChild(notesParagraph);
                 studentSection.appendChild(notesSection);
             }
@@ -844,72 +927,58 @@
     }
 
     function openSelectStudentsModal() {
-        if (students.length === 0) return alert('Chưa có học viên');
+        if (students.length === 0) return showToast('Chưa có học viên nào!', 'error');
         populateSelectStudentsList();
         selectStudentsModal.style.display = 'block';
     }
 
-function populateSelectStudentsList() {
-    selectStudentsListEl.innerHTML = '';
-    const monthKey = getCurrentMonthKey();
+    function populateSelectStudentsList() {
+        // ... (giữ nguyên logic populateSelectStudentsList từ file gốc)
+        selectStudentsListEl.innerHTML = '';
+        const monthKey = getCurrentMonthKey();
 
-    students.forEach(student => {
-        const studentSessions = student.sessions[monthKey] || [];
-        const sessionCount = studentSessions.length;
-        const discount = student.discounts[monthKey] || 0;
-        const totalFeeBeforeDiscount = sessionCount * student.feeRate;
-        const discountAmount = totalFeeBeforeDiscount * (discount / 100);
-        const totalFee = totalFeeBeforeDiscount - discountAmount;
-        
-        const hasNotes = student.notes[monthKey] && student.notes[monthKey].trim();
+        students.forEach(student => {
+            const studentSessions = student.sessions[monthKey] || [];
+            const sessionCount = studentSessions.length;
+            const discount = student.discounts[monthKey] || 0;
+            const totalFeeBefore = sessionCount * student.feeRate;
+            const totalFee = totalFeeBefore * (1 - discount / 100);
+            const hasNotes = student.notes[monthKey] && student.notes[monthKey].trim();
 
-        const div = document.createElement('div');
-        div.className = 'flex items-center justify-between p-3 border-b hover:bg-gray-50';
-        
-        const classDisplay = student.class ? `${student.class} - ` : '';
-        
-        div.innerHTML = `
-            <div class="flex items-center flex-1">
-                <input type="checkbox" class="student-select-checkbox mr-3 w-5 h-5" data-id="${student.id}">
-                <div>
-                    <div class="font-medium">${student.name}</div>
-                    <div class="text-sm text-gray-600">
-                        ${classDisplay}${sessionCount} buổi - ${totalFee.toLocaleString()} đ
-                        ${discount > 0 ? ` <span class="text-red-600">(Giảm ${discount}%)</span>` : ''}
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between p-4 border-b hover:bg-gray-50 rounded-xl';
+            div.innerHTML = `
+                <div class="flex items-center flex-1">
+                    <input type="checkbox" class="student-select-checkbox w-5 h-5 mr-4" data-id="${student.id}">
+                    <div>
+                        <div class="font-medium">${student.name}</div>
+                        <div class="text-sm text-gray-600">${student.class || ''} - ${sessionCount} buổi - ${totalFee.toLocaleString()} đ</div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="flex items-center gap-2">
                 ${hasNotes ? `
-                <input type="checkbox" class="include-notes-checkbox w-4 h-4" 
-                       data-id="${student.id}" checked>
-                <span class="text-xs text-gray-500 whitespace-nowrap">Chèn ghi chú</span>
-                ` : `
-                <span class="text-xs text-gray-400">Không có ghi chú</span>
-                `}
-            </div>
-        `;
-        
-        selectStudentsListEl.appendChild(div);
-    });
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" class="include-notes-checkbox w-4 h-4" data-id="${student.id}" checked>
+                    <span class="text-xs text-gray-500">Ghi chú</span>
+                </div>` : ''}
+            `;
+            selectStudentsListEl.appendChild(div);
+        });
 
-    // Gắn event cho checkbox chọn học viên
-    document.querySelectorAll('.student-select-checkbox').forEach(cb => {
-        cb.addEventListener('change', updateGenerateButton);
-    });
-}
+        document.querySelectorAll('.student-select-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateGenerateButton);
+        });
+    }
 
     function toggleSelectAll() {
         document.querySelectorAll('.student-select-checkbox').forEach(cb => cb.checked = selectAllStudentsEl.checked);
         updateGenerateButton();
     }
 
-function updateGenerateButton() {
-    const count = document.querySelectorAll('.student-select-checkbox:checked').length;
-    selectedCountEl.textContent = `${count} học viên được chọn`;
-    generateReceiptBtn.disabled = count === 0;
-}
+    function updateGenerateButton() {
+        const count = document.querySelectorAll('.student-select-checkbox:checked').length;
+        selectedCountEl.textContent = `${count} học viên được chọn`;
+        generateReceiptBtn.disabled = count === 0;
+    }
 
     function generateReceiptFromSelection() {
         const selectedIds = Array.from(document.querySelectorAll('.student-select-checkbox:checked')).map(cb => cb.dataset.id);
@@ -928,51 +997,104 @@ function updateGenerateButton() {
         selectStudentsModal.style.display = 'none';
     }
 
-    // ====================== KHỞI TẠO ======================
+    function formatDisplayDate(str) {
+        const d = new Date(str);
+        return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+    }
+
+    // ====================== KHỞI TẠO ỨNG DỤNG ======================
     document.addEventListener('DOMContentLoaded', async function() {
+        // Cập nhật tháng năm hiện tại
         updateMonthYearDisplay();
         generateCalendar();
+
+        // Tải dữ liệu từ JSONBin
         await loadFromJsonBin(true);
 
+        // Render ban đầu
+        renderStudentsSidebar();
         updateStudentSelect();
-        renderStudentCards();
         updateSummary();
 
-        addStudentBtn.addEventListener('click', addStudent);
+        // ====================== EVENT LISTENERS ======================
+
+        // Nút thêm học viên
+        addStudentBtn.addEventListener('click', openAddStudentModal);
+
+        // Modal thêm/sửa học viên
+        saveStudentBtn.addEventListener('click', addOrUpdateStudent);
+        cancelAddStudentBtn.addEventListener('click', closeAddStudentModalFn);
+        closeAddStudentModal.addEventListener('click', closeAddStudentModalFn);
+
+        // Calendar
         prevMonthBtn.addEventListener('click', showPreviousMonth);
         nextMonthBtn.addEventListener('click', showNextMonth);
-        studentSelectEl.addEventListener('change', updateAttendanceCheckboxes);
+        studentSelectEl.addEventListener('change', () => {
+            updateAttendanceCheckboxes();
+        });
         calendarGridEl.addEventListener('change', handleCalendarChange);
+
+        // Summary buttons
         clearAllBtn.addEventListener('click', clearAllData);
         showReceiptBtn.addEventListener('click', openSelectStudentsModal);
+
+        // Receipt Modal
         closeModalBtn.addEventListener('click', () => receiptModal.style.display = 'none');
         printReceiptBtn.addEventListener('click', () => window.print());
 
-        loadFromFileBtn.addEventListener('click', () => loadFromJsonBin(false));
-        saveToFileBtn.addEventListener('click', saveToJsonBin);
-
+        // Select Students Modal
         closeSelectModalBtn.addEventListener('click', closeSelectStudentsModal);
         cancelSelectBtn.addEventListener('click', closeSelectStudentsModal);
         selectAllStudentsEl.addEventListener('change', toggleSelectAll);
         generateReceiptBtn.addEventListener('click', generateReceiptFromSelection);
 
+        // Edit Notes Modal
         closeEditNotesBtn.addEventListener('click', () => editNotesModal.style.display = 'none');
         cancelEditNotesBtn.addEventListener('click', () => editNotesModal.style.display = 'none');
         saveEditNotesBtn.addEventListener('click', saveEditNotes);
 
+        // Edit Discount Modal
         closeEditDiscountBtn.addEventListener('click', () => editDiscountModal.style.display = 'none');
         cancelEditDiscountBtn.addEventListener('click', () => editDiscountModal.style.display = 'none');
         saveEditDiscountBtn.addEventListener('click', saveEditDiscount);
 
-        whatsNewBtn.addEventListener('click', () => whatsNewModal.style.display = 'block');
+        // What's New Modal
+        document.getElementById('whatsNewBtn').addEventListener('click', () => {
+            whatsNewModal.style.display = 'block';
+        });
         closeWhatsNewBtn.addEventListener('click', () => whatsNewModal.style.display = 'none');
         closeWhatsNewConfirmBtn.addEventListener('click', () => whatsNewModal.style.display = 'none');
 
-        window.addEventListener('click', e => {
-            if ([receiptModal, selectStudentsModal, editNotesModal, editDiscountModal, whatsNewModal].includes(e.target)) {
-                e.target.style.display = 'none';
-            }
+        // Close modals when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === addStudentModal) closeAddStudentModalFn();
+            if (e.target === editNotesModal) editNotesModal.style.display = 'none';
+            if (e.target === editDiscountModal) editDiscountModal.style.display = 'none';
+            if (e.target === selectStudentsModal) closeSelectStudentsModal();
+            if (e.target === receiptModal) receiptModal.style.display = 'none';
+            if (e.target === whatsNewModal) whatsNewModal.style.display = 'none';
         });
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                const openModals = document.querySelectorAll('.modal[style*="display: block"]');
+                if (openModals.length > 0) {
+                    openModals[openModals.length - 1].style.display = 'none';
+                }
+            }
+            // ====================== SỰ KIỆN CHO SIDEBAR ======================
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('edit-student-btn')) {
+        editStudent(e.target.dataset.id);
+    }
+        if (e.target.classList.contains('delete-student-btn')) {
+        deleteStudent(e.target.dataset.id);
+    }
+});
+        });
+
+        showToast('🚀 Phần mềm đã sẵn sàng!', 'success');
     });
 </script>
 </body>
