@@ -118,6 +118,31 @@
                 left: 0;
                 top: 0;
                 width: 100%;
+                background-color: white !important;
+                box-shadow: none !important;
+                padding: 20px;
+            }
+            
+            /* Đảm bảo đầu trang và cuối trang nền trắng */
+            .modal-content,
+            #printable-receipt,
+            #receiptContent,
+            .studentSection,
+            .mb-6.p-4.border.rounded-lg.bg-gray-50 {
+                background-color: white !important;
+            }
+            
+            .bg-gray-50 {
+                background-color: white !important;
+            }
+            
+            .notes-section {
+                background-color: #fffbeb !important;
+                border-left: 4px solid #f59e0b;
+            }
+            
+            .receipt-row {
+                background-color: white !important;
             }
         }
     </style>
@@ -315,40 +340,44 @@
 
     <!-- Receipt Modal -->
     <div id="receiptModal" class="modal">
-        <div class="modal-content" id="printable-receipt" style="max-width: 900px;">
+        <div class="modal-content" id="printable-receipt" style="max-width: 900px; background: white;">
             <div class="text-center mb-6">
-                <h2 class="text-4xl font-bold text-blue-600">PHIẾU BÁO HỌC PHÍ</h2>
+                <h2 class="text-3xl font-bold text-blue-600">PHIẾU BÁO HỌC PHÍ</h2>
                 <h3 class="text-2xl font-semibold text-gray-800 mt-3">THÁNG <span id="receiptMonthDisplay"></span></h3>
             </div>
 
             <div class="flex justify-end mb-4 no-print">
-                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 text-4xl leading-none">&times;</button>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-         
-            <div class="flex justify-between mb-6 text-sm">
-                <p><strong>Ngày xuất:</strong> <span id="receiptDate"></span></p>
-                <p><strong>Mã phiếu:</strong> HPDK-<span id="receiptNumber"></span></p>
+             
+            <div class="flex justify-between mb-6">
+                <p class="text-sm"><strong>Ngày xuất:</strong> <span id="receiptDate"></span></p>
+                <p class="text-sm"><strong>Mã phiếu:</strong> HPDK-<span id="receiptNumber"></span></p>
             </div>
-         
+             
             <div id="receiptContent"></div>
-    
-            <div class="mt-8 text-right">
-                <p class="text-2xl font-bold">TỔNG CỘNG: <span id="receiptTotalFee" class="text-blue-600">0</span> đ</p>
+        
+            <div class="mt-6 text-right">
+                <p class="text-xl font-bold">TỔNG CỘNG: <span id="receiptTotalFee" class="text-blue-600">0</span> đ</p>
             </div>
-         
-            <div class="mt-12 flex justify-between text-sm">
+             
+            <div class="mt-8 flex justify-between">
                 <div class="text-center">
                     <p class="font-bold">Người lập phiếu</p>
-                    <p class="text-gray-500 mt-10">(Ký, ghi rõ họ tên)</p>
+                    <p class="text-sm text-gray-500 mt-4">(Ký, ghi rõ họ tên)</p>
                 </div>
                 <div class="text-center">
                     <p class="font-bold">Phụ huynh học viên</p>
-                    <p class="text-gray-500 mt-10">(Ký, ghi rõ họ tên)</p>
+                    <p class="text-sm text-gray-500 mt-4">(Ký, ghi rõ họ tên)</p>
                 </div>
             </div>
-         
-            <div class="mt-10 flex justify-center no-print">
-                <button id="printReceiptBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-xl text-lg">
+             
+            <div class="mt-6 flex justify-center no-print">
+                <button id="printReceiptBtn" class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition duration-200">
                     In phiếu
                 </button>
             </div>
@@ -903,14 +932,13 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
 
     // ====================== RECEIPT FUNCTIONS (giữ nguyên) ======================
     function updateReceiptContent(selectedStudents = students, includeNotesMap = {}) {
-        // ... (giữ nguyên hàm updateReceiptContent từ file gốc bạn cung cấp)
         receiptContentEl.innerHTML = '';
         const today = new Date();
         receiptDateEl.textContent = today.toLocaleDateString('vi-VN');
        
         const monthKey = getCurrentMonthKey();
         const monthsDisplay = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-        receiptMonthDisplay.textContent = `${monthsDisplay[currentMonth]} / ${currentYear}`;
+        document.getElementById('receiptMonthDisplay').textContent = `${monthsDisplay[currentMonth]} / ${currentYear}`;
            
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = String(today.getFullYear()).slice(-2);
@@ -981,7 +1009,7 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
                 studentSessions.forEach(session => {
                     const sessionItem = document.createElement('div');
                     sessionItem.className = 'session-item';
-                    sessionItem.textContent = `${session.slice(8,10)}/${session.slice(5,7)}`;
+                    sessionItem.textContent = formatDisplayDate(session);
                     sessionGrid.appendChild(sessionItem);
                 });
                 studentSection.appendChild(sessionGrid);
@@ -992,7 +1020,8 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
                 const notesSection = document.createElement('div');
                 notesSection.className = "notes-section mt-4";
                 const notesParagraph = document.createElement('p');
-                notesParagraph.innerHTML = '<strong>Ghi chú:</strong> ' + student.notes[monthKey].replace(/\n/g, '<br>');
+                notesParagraph.innerHTML = '<strong>Ghi chú:</strong> ' + 
+                    student.notes[monthKey].replace(/\n/g, '<br>').replace(/\r/g, '').trim();
                 notesSection.appendChild(notesParagraph);
                 studentSection.appendChild(notesSection);
             }
