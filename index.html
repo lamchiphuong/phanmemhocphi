@@ -600,50 +600,127 @@
         addStudentModal.style.display = 'block';
     }
 
-    // Render danh sách học viên ở sidebar (trái)
-    function renderStudentsSidebar() {
-        studentsListEl.innerHTML = '';
-        const key = getCurrentMonthKey();
+// Render danh sách học viên ở sidebar (trái) - Mobile Friendly + Gắn sự kiện luôn
+function renderStudentsSidebar() {
+    studentsListEl.innerHTML = '';
+    const key = getCurrentMonthKey();
 
-        students.forEach(student => {
-            const sessions = student.sessions[key] || [];
-            const discount = student.discounts[key] || 0;
-            const totalFee = sessions.length * student.feeRate * (1 - discount / 100);
+    students.forEach(student => {
+        const sessions = student.sessions[key] || [];
+        const discount = student.discounts[key] || 0;
+        const totalFee = sessions.length * student.feeRate * (1 - discount / 100);
 
-            const div = document.createElement('div');
-            div.className = 'group bg-white border border-gray-200 rounded-xl p-4 hover:border-blue-300 transition-all cursor-pointer';
-            div.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-gray-800 truncate">${student.name}</p>
-                        ${student.class ? `<p class="text-xs text-gray-500">${student.class}</p>` : ''}
-                        <p class="text-xs text-blue-600 mt-1">${sessions.length} buổi • ${totalFee.toLocaleString()}đ</p>
-                    </div>
-                    <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition">
-                        <button class="edit-student-btn text-blue-600 hover:text-blue-700 text-xs px-2 py-1" data-id="${student.id}">Sửa</button>
-                        <button class="delete-student-btn text-red-600 hover:text-red-700 text-xs px-2 py-1" data-id="${student.id}">Xóa</button>
+        const div = document.createElement('div');
+        div.className = 'bg-white border border-gray-200 rounded-2xl p-4 hover:border-blue-300 transition-all';
+
+        div.innerHTML = `
+            <div class="flex justify-between items-start gap-3">
+                
+                <!-- THÔNG TIN -->
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-gray-800 text-base truncate">
+                        ${student.name}
+                    </p>
+
+                    ${student.class ? `
+                        <p class="text-sm text-gray-500 mt-0.5">
+                            Lớp: ${student.class}
+                        </p>
+                    ` : ''}
+
+                    <div class="mt-2 space-y-1 text-sm">
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-blue-600 font-medium">
+                                ${sessions.length} buổi
+                            </span>
+
+                            <span class="text-gray-400">•</span>
+
+                            <span class="font-medium text-emerald-600">
+                                ${totalFee.toLocaleString()}đ
+                            </span>
+                        </div>
+
+                        <div class="text-gray-500">
+                            Học phí: ${student.feeRate.toLocaleString()}đ/buổi
+                        </div>
+
+                        ${discount ? `
+                            <div class="text-red-500 font-medium">
+                                Giảm giá: ${discount}%
+                            </div>
+                        ` : ''}
+
+                        ${student.notes?.[key] ? `
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-xs text-gray-700 mt-2">
+                                📝 ${student.notes[key]}
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
-            `;
-            studentsListEl.appendChild(div);
-        });
 
-        // Gắn sự kiện
-        document.querySelectorAll('.edit-student-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopImmediatePropagation();
-                editStudent(btn.dataset.id);
-            });
-        });
+                <!-- NÚT -->
+                <div class="flex flex-col gap-2 w-24 flex-shrink-0">
 
-        document.querySelectorAll('.delete-student-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopImmediatePropagation();
-                deleteStudent(btn.dataset.id);
-            });
-        });
-    }
+                    <button
+                        class="edit-notes-btn bg-yellow-50 hover:bg-yellow-100 text-yellow-700 text-xs font-medium py-2 px-2 rounded-xl transition"
+                        data-id="${student.id}">
+                        📝 Ghi chú
+                    </button>
 
+                    <button
+                        class="edit-discount-btn bg-green-50 hover:bg-green-100 text-green-700 text-xs font-medium py-2 px-2 rounded-xl transition"
+                        data-id="${student.id}">
+                        💸 Giảm giá
+                    </button>
+
+                    <button
+                        class="edit-student-btn bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-medium py-2 px-2 rounded-xl transition"
+                        data-id="${student.id}">
+                        ✏️ Sửa
+                    </button>
+
+                    <button
+                        class="delete-student-btn bg-red-50 hover:bg-red-100 text-red-700 text-xs font-medium py-2 px-2 rounded-xl transition"
+                        data-id="${student.id}">
+                        🗑️ Xóa
+                    </button>
+
+                </div>
+            </div>
+        `;
+        studentsListEl.appendChild(div);
+    });
+
+    // ====================== GẮN SỰ KIỆN NGAY SAU KHI RENDER ======================
+    document.querySelectorAll('.edit-student-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopImmediatePropagation();
+            editStudent(this.dataset.id);
+        });
+    });
+
+    document.querySelectorAll('.delete-student-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopImmediatePropagation();
+            deleteStudent(this.dataset.id);
+        });
+    });
+    document.querySelectorAll('.edit-notes-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopImmediatePropagation();
+        editNotes(this.dataset.id);
+    });
+});
+
+document.querySelectorAll('.edit-discount-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopImmediatePropagation();
+        editDiscount(this.dataset.id);
+    });
+});
+}
     function clearAllData() {
         if (confirm('XÓA TOÀN BỘ DỮ LIỆU?\nHành động này không thể hoàn tác!')) {
             students = [];
