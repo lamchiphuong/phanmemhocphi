@@ -849,35 +849,67 @@
         selectStudentsModal.style.display = 'block';
     }
 
-    function populateSelectStudentsList() {
-        selectStudentsListEl.innerHTML = '';
-        const key = getCurrentMonthKey();
-        students.forEach(student => {
-            const count = (student.sessions[key] || []).length;
-            const disc = student.discounts[key] || 0;
-            const total = count * student.feeRate * (1 - disc/100);
-            const div = document.createElement('div');
-            div.className = 'flex items-center p-3 border-b';
-            div.innerHTML = `
-                <input type="checkbox" class="student-select-checkbox mr-3" data-id="${student.id}">
-                <div class="flex-1">${student.name} - ${count} buổi - ${total.toLocaleString()}đ</div>
-                <input type="checkbox" class="include-notes-checkbox" data-id="${student.id}" ${student.notes[key] ? 'checked' : 'disabled'}>
-            `;
-            selectStudentsListEl.appendChild(div);
-        });
-        document.querySelectorAll('.student-select-checkbox').forEach(cb => cb.addEventListener('change', updateGenerateButton));
-    }
+function populateSelectStudentsList() {
+    selectStudentsListEl.innerHTML = '';
+    const monthKey = getCurrentMonthKey();
+
+    students.forEach(student => {
+        const studentSessions = student.sessions[monthKey] || [];
+        const sessionCount = studentSessions.length;
+        const discount = student.discounts[monthKey] || 0;
+        const totalFeeBeforeDiscount = sessionCount * student.feeRate;
+        const discountAmount = totalFeeBeforeDiscount * (discount / 100);
+        const totalFee = totalFeeBeforeDiscount - discountAmount;
+        
+        const hasNotes = student.notes[monthKey] && student.notes[monthKey].trim();
+
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-3 border-b hover:bg-gray-50';
+        
+        const classDisplay = student.class ? `${student.class} - ` : '';
+        
+        div.innerHTML = `
+            <div class="flex items-center flex-1">
+                <input type="checkbox" class="student-select-checkbox mr-3 w-5 h-5" data-id="${student.id}">
+                <div>
+                    <div class="font-medium">${student.name}</div>
+                    <div class="text-sm text-gray-600">
+                        ${classDisplay}${sessionCount} buổi - ${totalFee.toLocaleString()} đ
+                        ${discount > 0 ? ` <span class="text-red-600">(Giảm ${discount}%)</span>` : ''}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                ${hasNotes ? `
+                <input type="checkbox" class="include-notes-checkbox w-4 h-4" 
+                       data-id="${student.id}" checked>
+                <span class="text-xs text-gray-500 whitespace-nowrap">Chèn ghi chú</span>
+                ` : `
+                <span class="text-xs text-gray-400">Không có ghi chú</span>
+                `}
+            </div>
+        `;
+        
+        selectStudentsListEl.appendChild(div);
+    });
+
+    // Gắn event cho checkbox chọn học viên
+    document.querySelectorAll('.student-select-checkbox').forEach(cb => {
+        cb.addEventListener('change', updateGenerateButton);
+    });
+}
 
     function toggleSelectAll() {
         document.querySelectorAll('.student-select-checkbox').forEach(cb => cb.checked = selectAllStudentsEl.checked);
         updateGenerateButton();
     }
 
-    function updateGenerateButton() {
-        const count = document.querySelectorAll('.student-select-checkbox:checked').length;
-        selectedCountEl.textContent = `${count} học viên được chọn`;
-        generateReceiptBtn.disabled = count === 0;
-    }
+function updateGenerateButton() {
+    const count = document.querySelectorAll('.student-select-checkbox:checked').length;
+    selectedCountEl.textContent = `${count} học viên được chọn`;
+    generateReceiptBtn.disabled = count === 0;
+}
 
     function generateReceiptFromSelection() {
         const selectedIds = Array.from(document.querySelectorAll('.student-select-checkbox:checked')).map(cb => cb.dataset.id);
