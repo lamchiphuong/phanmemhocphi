@@ -974,7 +974,7 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
             const header = document.createElement('h3');
             header.className = "font-bold text-lg text-blue-600 mb-2";
             const classDisplay = student.class ? ` - Lớp ${student.class}` : '';
-            header.textContent = `${student.name}${classDisplay}`;
+            header.textContent = `Học viên: ${student.name}${classDisplay}`;
             studentSection.appendChild(header);
            
             const row = document.createElement('div');
@@ -1020,7 +1020,7 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
                 const notesSection = document.createElement('div');
                 notesSection.className = "notes-section mt-4";
                 const notesParagraph = document.createElement('p');
-                notesParagraph.innerHTML = '<strong></strong> ' + 
+                notesParagraph.innerHTML = '<strong>Ghi chú:</strong> ' + 
                     student.notes[monthKey].replace(/\n/g, '<br>').replace(/\r/g, '').trim();
                 notesSection.appendChild(notesParagraph);
                 studentSection.appendChild(notesSection);
@@ -1200,7 +1200,7 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
 });
         });
 
-        showToast('Phần mềm đã sẵn sàng!', 'success');
+        showToast('Chào mừng đến với ứng dụng Tính học phí!', 'success');
     });
 </script>
 </body>
