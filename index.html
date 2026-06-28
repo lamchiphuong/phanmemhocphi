@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PM Tính Học Phí - ver 2.5</title>
+    <title>PM Tính Học Phí - ver 2.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
@@ -183,7 +183,7 @@
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         <header class="text-center mb-8 relative">
             <h1 class="text-3xl font-bold text-blue-600 mb-2">PHẦN MỀM TÍNH HỌC PHÍ</h1>
-            <p class="text-gray-600">Phiên bản 2.5 - được phát triển bởi Lâm Chí Phương</p>
+            <p class="text-gray-600">Phiên bản 2.6 - được phát triển bởi Lâm Chí Phương</p>
             <p class="text-gray-600">Email: lamchiphuong.work@gmail.com</p>
         </header>
 
@@ -358,7 +358,7 @@
     <div class="text-center py-8">
         <button id="whatsNewBtn" 
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl text-sm font-medium transition shadow-md">
-            What's New trong phiên bản 2.5
+            What's New trong phiên bản 2.6
         </button>
     </div>
 
@@ -444,23 +444,30 @@
 
     <!-- Select Students Modal -->
     <div id="selectStudentsModal" class="modal">
-        <div class="modal-content max-w-2xl">
+        <div class="modal-content max-w-3xl">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-800">Chọn học viên để xuất phiếu</h2>
+                <h2 class="text-xl font-bold text-gray-800">Chọn học viên & tháng để xuất phiếu</h2>
                 <button id="closeSelectModalBtn" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
             </div>
+            
+            <!-- Month Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Chọn tháng (có thể chọn nhiều để gộp phiếu)</label>
+                <div id="monthSelection" class="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2 border rounded-xl bg-gray-50"></div>
+            </div>
+            
             <div id="selectStudentsList" class="mb-4 max-h-80 overflow-y-auto border rounded-xl p-2"></div>
             <div class="flex justify-between mb-4 px-1">
                 <label class="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" id="selectAllStudents" class="w-5 h-5">
-                    <span class="text-sm font-medium">Chọn tất cả</span>
+                    <span class="text-sm font-medium">Chọn tất cả học viên</span>
                 </label>
                 <span id="selectedCount" class="text-sm text-gray-600 font-medium">0 học viên được chọn</span>
             </div>
             <div class="flex justify-end gap-3">
                 <button id="cancelSelectBtn" class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl">Hủy</button>
                 <button id="generateReceiptBtn" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl disabled:opacity-50" disabled>
-                    Xuất phiếu học phí
+                    Xuất phiếu học phí (Gộp tháng)
                 </button>
             </div>
         </div>
@@ -471,7 +478,7 @@
         <div class="modal-content" id="printable-receipt" style="max-width: 900px; background: white;">
             <div class="text-center mb-6">
                 <h2 class="text-3xl font-bold text-blue-600">PHIẾU BÁO HỌC PHÍ</h2>
-                <h3 class="text-2xl font-semibold text-gray-800 mt-3">THÁNG <span id="receiptMonthDisplay"></span></h3>
+                <h3 class="text-2xl font-semibold text-gray-800 mt-3"><span id="receiptMonthDisplay"></span></h3>
             </div>
 
             <div class="flex justify-end mb-4 no-print">
@@ -516,17 +523,13 @@
     <div id="whatsNewModal" class="modal">
         <div class="modal-content max-w-lg">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-indigo-700">Cập nhật phiên bản 2.5</h2>
+                <h2 class="text-xl font-bold text-indigo-700">Cập nhật phiên bản 2.6</h2>
                 <button id="closeWhatsNewBtn" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
             </div>
             <div class="space-y-3 text-gray-700">
                 <p><strong>Thay đổi chính:</strong></p>
                 <ul class="list-disc pl-5 space-y-1">
-                    <li>Giảm giá và ghi chú giờ là <strong>riêng cho từng tháng</strong></li>
-                    <li>Giao diện thêm học viên dạng popup</li>
-                    <li>Danh sách học viên hiển thị cố định bên trái</li>
-                    <li>Thông báo dạng Toast hiện đại</li>
-                    <li>Nút What's New đặt cuối trang</li>
+                    <li>Thêm tính năng gộp học phí nhiều tháng</li>
                 </ul>
                 <p class="text-sm italic mt-6">Cảm ơn bạn đã sử dụng phần mềm!</p>
             </div>
@@ -549,7 +552,65 @@
     let students = [];
     let lastSavedState = null;
     let currentEditingStudentId = null;
-    let isEditingStudent = false;  // Để phân biệt thêm mới hay sửa
+    let isEditingStudent = false;
+
+    // === THÊM CHO TÍNH NĂNG GỘP THÁNG ===
+    let selectedMonths = [];
+
+    // Helper functions
+    function getCurrentMonthKey() {
+        return `${currentMonth + 1}-${currentYear}`;
+    }
+
+    function getMonthKey(m, y) {
+        return `${m + 1}-${y}`;
+    }
+
+    function getAvailableMonths() {
+        const months = [];
+        let m = currentMonth;
+        let y = currentYear;
+        for (let i = 0; i < 12; i++) {
+            months.unshift({month: m, year: y, key: getMonthKey(m, y)});
+            m--;
+            if (m < 0) { m = 11; y--; }
+        }
+        return months;
+    }
+
+        function renderMonthSelection() {
+        monthSelectionEl.innerHTML = '';
+        const available = getAvailableMonths();
+        selectedMonths = [getCurrentMonthKey()]; // Mặc định tháng hiện tại
+
+        available.forEach(({month, year, key}) => {
+            const monthName = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'][month];
+            const isSelected = selectedMonths.includes(key);
+            
+            const div = document.createElement('div');
+            div.className = `p-2 border rounded-xl flex items-center gap-2 cursor-pointer hover:bg-white ${isSelected ? 'bg-blue-50 border-blue-500' : 'bg-white'}`;
+            div.innerHTML = `
+                <input type="checkbox" class="month-checkbox w-4 h-4" data-key="${key}" ${isSelected ? 'checked' : ''}>
+                <span class="text-sm">${monthName} ${year}</span>
+            `;
+            monthSelectionEl.appendChild(div);
+        });
+
+        document.querySelectorAll('.month-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const key = this.dataset.key;
+                if (this.checked) {
+                    if (!selectedMonths.includes(key)) selectedMonths.push(key);
+                } else {
+                    selectedMonths = selectedMonths.filter(k => k !== key);
+                }
+                if (selectedMonths.length === 0) {
+                    this.checked = true;
+                    selectedMonths = [key];
+                }
+            });
+        });
+    }
 
     // === DOM ELEMENTS ===
     const studentNameEl = document.getElementById('studentName');
@@ -566,6 +627,7 @@
     const totalFeesEl = document.getElementById('totalFees');
     const clearAllBtn = document.getElementById('clearAllBtn');
     const showReceiptBtn = document.getElementById('showReceiptBtn');
+    const monthSelectionEl = document.getElementById('monthSelection');
 
     // Modal Elements
     const addStudentModal = document.getElementById('addStudentModal');
@@ -1088,18 +1150,39 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
         const today = new Date();
         receiptDateEl.textContent = today.toLocaleDateString('vi-VN');
        
-        const monthKey = getCurrentMonthKey();
         const monthsDisplay = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-        document.getElementById('receiptMonthDisplay').textContent = `${monthsDisplay[currentMonth]} / ${currentYear}`;
+        
+        // === PHẦN TITLE - SẮP XẾP THEO THỨ TỰ THÁNG ===
+        let titleText = '';
+
+        if (selectedMonths.length === 1) {
+            const [mStr, yStr] = selectedMonths[0].split('-');
+            titleText = `${monthsDisplay[parseInt(mStr)-1]} / ${yStr}`;
+        } else {
+            // Sắp xếp tháng theo thứ tự thời gian
+            const sortedMonths = [...selectedMonths].sort((a, b) => {
+                const [mA, yA] = a.split('-').map(Number);
+                const [mB, yB] = b.split('-').map(Number);
+                
+                if (yA !== yB) return yA - yB;
+                return mA - mB;
+            });
+
+            const monthNames = sortedMonths.map(key => {
+                const [mStr, yStr] = key.split('-');
+                return `Tháng ${monthsDisplay[parseInt(mStr)-1]}/${yStr}`;
+            });
+            
+            titleText = monthNames.join(' + ');
+        }
+        
+        document.getElementById('receiptMonthDisplay').textContent = titleText;
+        // ======================================
            
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const year = String(today.getFullYear()).slice(-2);
        
-        const currentState = JSON.stringify(selectedStudents.map(s => ({
-            id: s.id,
-            sessions: s.sessions[monthKey] || [],
-            includeNotes: includeNotesMap[s.id]
-        })));
+        const currentState = JSON.stringify({ students: selectedStudents.map(s => s.id), months: selectedMonths });
        
         let receiptCounter = localStorage.getItem(`receiptCounter-${month}${year}`) || 0;
         if (lastSavedState !== currentState) {
@@ -1107,77 +1190,91 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
             localStorage.setItem(`receiptCounter-${month}${year}`, receiptCounter);
             lastSavedState = currentState;
         }
-        const serial = String(receiptCounter).padStart(5, '0');
-        receiptNumberEl.textContent = `${month}${year}-${serial}`;
+        receiptNumberEl.textContent = `${month}${year}-${String(receiptCounter).padStart(5, '0')}`;
+
+        // ... (phần còn lại của hàm giữ nguyên)
 
         let totalFee = 0;
         selectedStudents.forEach(student => {
-            const studentSessions = student.sessions[monthKey] || [];
-            const sessionCount = studentSessions.length;
-            const discount = student.discounts[monthKey] || 0;
-           
-            const totalFeeBeforeDiscount = sessionCount * student.feeRate;
-            const discountAmount = totalFeeBeforeDiscount * (discount / 100);
-            const studentTotal = totalFeeBeforeDiscount - discountAmount;
-            totalFee += studentTotal;
-           
             const studentSection = document.createElement('div');
             studentSection.className = "mb-6 p-4 border rounded-lg bg-gray-50";
+            
             const header = document.createElement('h3');
             header.className = "font-bold text-lg text-blue-600 mb-2";
-            const classDisplay = student.class ? ` - Lớp ${student.class}` : '';
-            header.textContent = `${student.name}${classDisplay}`;
+            header.textContent = `${student.name}${student.class ? ` - Lớp ${student.class}` : ''}`;
             studentSection.appendChild(header);
-           
-            const row = document.createElement('div');
-            row.className = 'receipt-row receipt-header';
-            row.innerHTML = `<div>Tên học viên</div><div>Số buổi</div><div>Đơn giá</div><div>Thành tiền</div>`;
-            studentSection.appendChild(row);
-           
+
+            let allSessions = [];
+            let totalSessions = 0;
+            let totalBefore = 0;
+            let totalDiscount = 0;
+
+            selectedMonths.forEach(mKey => {
+                const sessions = student.sessions[mKey] || [];
+                const count = sessions.length;
+                const disc = student.discounts[mKey] || 0;
+                const before = count * student.feeRate;
+                totalSessions += count;
+                totalBefore += before;
+                totalDiscount += before * (disc / 100);
+                allSessions = allSessions.concat(sessions);
+            });
+
+            const studentTotal = totalBefore - totalDiscount;
+            totalFee += studentTotal;
+
+            // Receipt rows
+            const rowHeader = document.createElement('div');
+            rowHeader.className = 'receipt-row receipt-header';
+            rowHeader.innerHTML = `<div>Tên học viên</div><div>Số buổi</div><div>Đơn giá</div><div>Thành tiền</div>`;
+            studentSection.appendChild(rowHeader);
+
             const dataRow = document.createElement('div');
             dataRow.className = 'receipt-row';
-            dataRow.innerHTML = `<div>${student.name}</div><div>${sessionCount}</div><div>${student.feeRate.toLocaleString()} đ</div><div>${totalFeeBeforeDiscount.toLocaleString()} đ</div>`;
+            dataRow.innerHTML = `<div>${student.name}</div><div>${totalSessions}</div><div>${student.feeRate.toLocaleString()} đ</div><div>${totalBefore.toLocaleString()} đ</div>`;
             studentSection.appendChild(dataRow);
-           
-            if (discount > 0) {
-                const discountRow = document.createElement('div');
-                discountRow.className = 'receipt-row text-sm text-red-600';
-                discountRow.innerHTML = `<div></div><div></div><div>Giảm giá: ${discount}%</div><div>-${discountAmount.toLocaleString()} đ</div>`;
-                studentSection.appendChild(discountRow);
-               
-                const afterDiscountRow = document.createElement('div');
-                afterDiscountRow.className = 'receipt-row font-bold text-blue-600 mt-2';
-                afterDiscountRow.innerHTML = `<div></div><div></div><div>Tổng sau giảm:</div><div>${studentTotal.toLocaleString()} đ</div>`;
-                studentSection.appendChild(afterDiscountRow);
+
+            if (totalDiscount > 0) {
+                const discRow = document.createElement('div');
+                discRow.className = 'receipt-row text-sm text-red-600';
+                discRow.innerHTML = `<div></div><div></div><div>Giảm giá tổng:</div><div>-${totalDiscount.toLocaleString()} đ</div>`;
+                studentSection.appendChild(discRow);
+
+                const totalRow = document.createElement('div');
+                totalRow.className = 'receipt-row font-bold text-blue-600 mt-2';
+                totalRow.innerHTML = `<div></div><div></div><div>Tổng sau giảm:</div><div>${studentTotal.toLocaleString()} đ</div>`;
+                studentSection.appendChild(totalRow);
             }
-           
-            if (studentSessions.length > 0) {
+
+            if (allSessions.length > 0) {
                 const detailTitle = document.createElement('p');
                 detailTitle.className = "font-medium mt-4";
                 detailTitle.textContent = "Chi tiết buổi học:";
                 studentSection.appendChild(detailTitle);
+                
                 const sessionGrid = document.createElement('div');
                 sessionGrid.className = "session-grid mt-2";
-                studentSessions.forEach(session => {
-                    const sessionItem = document.createElement('div');
-                    sessionItem.className = 'session-item';
-                    sessionItem.textContent = formatDisplayDate(session);
-                    sessionGrid.appendChild(sessionItem);
+                allSessions.sort((a,b) => new Date(a) - new Date(b)).forEach(s => {
+                    const item = document.createElement('div');
+                    item.className = 'session-item';
+                    item.textContent = formatDisplayDate(s);
+                    sessionGrid.appendChild(item);
                 });
                 studentSection.appendChild(sessionGrid);
             }
-           
-            const includeNotes = includeNotesMap[student.id] || false;
-            if (includeNotes && student.notes[monthKey] && student.notes[monthKey].trim()) {
-                const notesSection = document.createElement('div');
-                notesSection.className = "notes-section mt-4";
-                const notesParagraph = document.createElement('p');
-                notesParagraph.innerHTML = '<strong></strong> ' + 
-                    student.notes[monthKey].replace(/\n/g, '<br>').replace(/\r/g, '').trim();
-                notesSection.appendChild(notesParagraph);
-                studentSection.appendChild(notesSection);
+
+            // Notes
+            if (includeNotesMap[student.id]) {
+                selectedMonths.forEach(mKey => {
+                    if (student.notes[mKey] && student.notes[mKey].trim()) {
+                        const notesSec = document.createElement('div');
+                        notesSec.className = "notes-section mt-4";
+                        notesSec.innerHTML = `<p><strong>Tháng ${mKey.split('-')[0]}:</strong> ${student.notes[mKey].replace(/\n/g, '<br>')}</p>`;
+                        studentSection.appendChild(notesSec);
+                    }
+                });
             }
-           
+
             receiptContentEl.appendChild(studentSection);
         });
        
@@ -1186,22 +1283,26 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
 
     function openSelectStudentsModal() {
         if (students.length === 0) return showToast('Chưa có học viên nào!', 'error');
+        renderMonthSelection();
         populateSelectStudentsList();
         selectStudentsModal.style.display = 'block';
     }
 
     function populateSelectStudentsList() {
-        // ... (giữ nguyên logic populateSelectStudentsList từ file gốc)
         selectStudentsListEl.innerHTML = '';
-        const monthKey = getCurrentMonthKey();
-
         students.forEach(student => {
-            const studentSessions = student.sessions[monthKey] || [];
-            const sessionCount = studentSessions.length;
-            const discount = student.discounts[monthKey] || 0;
-            const totalFeeBefore = sessionCount * student.feeRate;
-            const totalFee = totalFeeBefore * (1 - discount / 100);
-            const hasNotes = student.notes[monthKey] && student.notes[monthKey].trim();
+            let totalSessions = 0;
+            let totalFee = 0;
+            let hasNotes = false;
+
+            selectedMonths.forEach(monthKey => {
+                const sessions = student.sessions[monthKey] || [];
+                totalSessions += sessions.length;
+                const discount = student.discounts[monthKey] || 0;
+                const before = sessions.length * student.feeRate;
+                totalFee += before * (1 - discount / 100);
+                if (student.notes[monthKey] && student.notes[monthKey].trim()) hasNotes = true;
+            });
 
             const div = document.createElement('div');
             div.className = 'flex items-center justify-between p-4 border-b hover:bg-gray-50 rounded-xl';
@@ -1210,7 +1311,7 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
                     <input type="checkbox" class="student-select-checkbox w-5 h-5 mr-4" data-id="${student.id}">
                     <div>
                         <div class="font-medium">${student.name}</div>
-                        <div class="text-sm text-gray-600">${student.class || ''} - ${sessionCount} buổi - ${totalFee.toLocaleString()} đ</div>
+                        <div class="text-sm text-gray-600">${student.class || ''} - ${totalSessions} buổi - ${totalFee.toLocaleString()} đ (${selectedMonths.length} tháng)</div>
                     </div>
                 </div>
                 ${hasNotes ? `
