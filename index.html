@@ -1269,7 +1269,7 @@ document.querySelectorAll('.edit-discount-btn').forEach(btn => {
                     if (student.notes[mKey] && student.notes[mKey].trim()) {
                         const notesSec = document.createElement('div');
                         notesSec.className = "notes-section mt-4";
-                        notesSec.innerHTML = `<p><strong>Tháng ${mKey.split('-')[0]}:</strong> ${student.notes[mKey].replace(/\n/g, '<br>')}</p>`;
+                        notesSec.innerHTML = `<p><strong>GHI CHÚ:</strong> ${student.notes[mKey].replace(/\n/g, '<br>')}</p>`;
                         studentSection.appendChild(notesSec);
                     }
                 });
